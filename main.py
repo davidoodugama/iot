@@ -1,15 +1,12 @@
-# from unittest.mock import PropertyMock
-# from mqtt.publisher import Publisher
 from const.const import TOPIC
-# from readings.temp_reading import Temperature
-# from flask import Flask, abort, request, jsonify, Response
+from flask import Flask, abort, request, jsonify, Response
 # from flask_restful import Api, Resource, request
 import prometheus_client
 import pymysql
-# from prometheus_client.core import CollectorRegistry
 from prometheus_client import Summary, Counter, Histogram, Gauge, CollectorRegistry, push_to_gateway
 import time
-# from prometheus_client import CollectorRegistry, Gauge, push_to_gateway
+
+application = Flask(__name__)
 _INF = float("inf")
 graphs = {}
 registry = CollectorRegistry()
@@ -30,12 +27,8 @@ cursor = db.cursor()
 sql = '''use temp_db'''
 cursor.execute(sql)
 
-
-# num_req = Gauge('python_request_operations_total', 'The total number of processed request in publisher')
-# publisher = Publisher(TOPIC)
-# temp_obj = Temperature(25)
-
-def extract_temp():
+@application.route("/")
+async def extract_temp():
     counter = 0
     while True:
         start = time.time()
@@ -56,33 +49,7 @@ def extract_temp():
         graphs['g'].set(temperature)
         graphs['h'].observe(end-start)
         push_to_gateway('localhost:8000', job='python', registry=registry)
-        # count = 30
-        # while(count > 0):
-        #     temperature = 10000
-        #     publisher.publish_msg(count)
-            # sub_thread = threading.Thread(target = publisher.publish_msg, args=(count,))
-            # sub_thread.start()
-            # sub_obj.runSub()
-            # count += 1
-
-# @application.route('/metrics')
-# def requests_count():
-#     res = []
-#     for k,v in graphs.items():
-#         res.append(prometheus_client.generate_latest(v))
-#     return Response(res, mimetype = "text/plain") 172.17.0.2
 
 if __name__ == '__main__':
     prometheus_client.start_http_server(8000)
-    extract_temp()
-#     while True:
-#         temperature = temp_obj.getTempReadings()
-#         publisher.publish_msg(temperature)
-        # count = 30
-        # while(count > 0):
-        #     temperature = 10000
-        #     publisher.publish_msg(count)
-            # sub_thread = threading.Thread(target = publisher.publish_msg, args=(count,))
-            # sub_thread.start()
-            # sub_obj.runSub()
-            # count += 1
+    application.run(debug=True, port=5000)
