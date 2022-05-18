@@ -1,0 +1,639 @@
+[
+    {
+        "id": "7db1206f831c6b71",
+        "type": "tab",
+        "label": "Flow 5",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "763cdb70af430a63",
+        "type": "function",
+        "z": "7db1206f831c6b71",
+        "name": "",
+        "func": "var payload = msg.payload\n\nif(msg.topic == 'date'){\nvar DateStart =new Date(payload);\nvar newdate = DateStart.toISOString().slice(0, 10);\n}\n\n//msg.topic = \"SELECT * FROM [Temperature_db].[dbo].[Test_db] where Dates = '\"+newdate+\"' \"\n//msg.topic = \"SELECT * FROM [Temperature_db].[dbo].[Test_db] where Dates <= '2021-04-01' \"\nmsg.topic = \"SELECT TOP 13 * FROM [Temperature_db].[dbo].[Test_db] WHERE Dates <= '\"+newdate+\"' ORDER BY Dates DESC\"\n\n\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 500,
+        "y": 300,
+        "wires": [
+            [
+                "2a8bcd4732c68c2d"
+            ]
+        ]
+    },
+    {
+        "id": "322a7be47af456cd",
+        "type": "ui_date_picker",
+        "z": "7db1206f831c6b71",
+        "name": "",
+        "label": "date",
+        "group": "ad742127fa3ad813",
+        "order": 1,
+        "width": 21,
+        "height": 1,
+        "passthru": true,
+        "topic": "date",
+        "topicType": "str",
+        "className": "",
+        "x": 150,
+        "y": 300,
+        "wires": [
+            [
+                "763cdb70af430a63",
+                "336c44b4d678a529"
+            ]
+        ]
+    },
+    {
+        "id": "cdbb36bca44998e9",
+        "type": "debug",
+        "z": "7db1206f831c6b71",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": true,
+        "tostatus": true,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "payload",
+        "statusType": "auto",
+        "x": 1620,
+        "y": 240,
+        "wires": []
+    },
+    {
+        "id": "8d2021509c0fd647",
+        "type": "MSSQL",
+        "z": "7db1206f831c6b71",
+        "mssqlCN": "dd12380c8615ca09",
+        "name": "",
+        "query": "",
+        "outField": "payload",
+        "x": 1140,
+        "y": 300,
+        "wires": [
+            [
+                "47ade2ac2d89a456",
+                "a6dddce61f8f919e"
+            ]
+        ]
+    },
+    {
+        "id": "69d4ea6d867ddd2c",
+        "type": "inject",
+        "z": "7db1206f831c6b71",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 160,
+        "y": 160,
+        "wires": [
+            [
+                "322a7be47af456cd"
+            ]
+        ]
+    },
+    {
+        "id": "47ade2ac2d89a456",
+        "type": "function",
+        "z": "7db1206f831c6b71",
+        "name": "",
+        "func": "var payload = msg.payload\nvar data_out = [];\nvar a1 = [];\nvar a2 = [];\n\n\nfor(let i = 0 ; i < payload.length ; i++){\n    var p = payload[i].Dates.toLocaleDateString('default', { month: 'short' , year: 'numeric' })\n    var temp1 = {\"y\": payload[i][\"Value\"]};\n    a1.push(payload[i][\"Value\"]);\n    a2.push(p)\n    \n}\ndata_out = [a1];\nmsg.payload = [{\n    \"series\" : [\"Temperature\"],\n    \"data\": [a1],\n    \"labels\": a2\n    \n}];\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1380,
+        "y": 280,
+        "wires": [
+            [
+                "cdbb36bca44998e9",
+                "5a588be477bf7282"
+            ]
+        ]
+    },
+    {
+        "id": "a6dddce61f8f919e",
+        "type": "debug",
+        "z": "7db1206f831c6b71",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": true,
+        "tostatus": true,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "payload",
+        "statusType": "auto",
+        "x": 1380,
+        "y": 180,
+        "wires": []
+    },
+    {
+        "id": "2a8bcd4732c68c2d",
+        "type": "change",
+        "z": "7db1206f831c6b71",
+        "name": "",
+        "rules": [
+            {
+                "t": "move",
+                "p": "topic",
+                "pt": "msg",
+                "to": "payload",
+                "tot": "msg"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 720,
+        "y": 300,
+        "wires": [
+            [
+                "fdbbdc0304d9778a",
+                "8d2021509c0fd647"
+            ]
+        ]
+    },
+    {
+        "id": "fdbbdc0304d9778a",
+        "type": "debug",
+        "z": "7db1206f831c6b71",
+        "name": "",
+        "active": false,
+        "tosidebar": true,
+        "console": true,
+        "tostatus": true,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "payload",
+        "statusType": "auto",
+        "x": 980,
+        "y": 180,
+        "wires": []
+    },
+    {
+        "id": "5a588be477bf7282",
+        "type": "ui_chart",
+        "z": "7db1206f831c6b71",
+        "name": "",
+        "group": "ad742127fa3ad813",
+        "order": 3,
+        "width": 21,
+        "height": 8,
+        "label": "Backward Prediction",
+        "chartType": "line",
+        "legend": "true",
+        "xformat": "auto",
+        "interpolate": "monotone",
+        "nodata": "",
+        "dot": true,
+        "ymin": "",
+        "ymax": "",
+        "removeOlder": 1,
+        "removeOlderPoints": "",
+        "removeOlderUnit": "3600",
+        "cutout": 0,
+        "useOneColor": false,
+        "useUTC": false,
+        "colors": [
+            "#1f77b4",
+            "#aec7e8",
+            "#ff7f0e",
+            "#2ca02c",
+            "#98df8a",
+            "#d62728",
+            "#ff9896",
+            "#9467bd",
+            "#c5b0d5"
+        ],
+        "outputs": 1,
+        "useDifferentColor": false,
+        "className": "",
+        "x": 1640,
+        "y": 320,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "c884f8512b356001",
+        "type": "function",
+        "z": "7db1206f831c6b71",
+        "name": "",
+        "func": "var payload = msg.payload\n\nif(msg.topic == 'date'){\nvar DateStart =new Date(payload);\nvar newdate = DateStart.toISOString().slice(0, 10);\n}\n\n//msg.topic = \"SELECT * FROM [Temperature_db].[dbo].[Test_db] where Dates = '\"+newdate+\"' \"\n//msg.topic = \"SELECT * FROM [Temperature_db].[dbo].[Test_db] where Dates <= '2021-04-01' \"\nmsg.topic = \"SELECT TOP 13 * FROM [Temperature_db].[dbo].[Test_db] WHERE Dates >= '\"+newdate+\"' ORDER BY Dates ASC\"\n\n\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 520,
+        "y": 460,
+        "wires": [
+            [
+                "bd226ce22b149562"
+            ]
+        ]
+    },
+    {
+        "id": "402c3781ab0ce487",
+        "type": "debug",
+        "z": "7db1206f831c6b71",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": true,
+        "tostatus": true,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "payload",
+        "statusType": "auto",
+        "x": 1640,
+        "y": 420,
+        "wires": []
+    },
+    {
+        "id": "9eb28b5d9e101c5e",
+        "type": "function",
+        "z": "7db1206f831c6b71",
+        "name": "",
+        "func": "var payload = msg.payload\nvar data_out = [];\nvar a1 = [];\nvar a2 = [];\n\n\nfor(let i = 0 ; i < payload.length ; i++){\n    var p = payload[i].Dates.toLocaleDateString('default', { month: 'short' , year: 'numeric' })\n    var temp1 = {\"y\": payload[i][\"Value\"]};\n    a1.push(payload[i][\"Value\"]);\n    a2.push(p)\n    \n}\ndata_out = [a1];\nmsg.payload = [{\n    \"series\" : [\"Temperature\"],\n    \"data\": [a1],\n    \"labels\": a2\n    \n}];\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1380,
+        "y": 460,
+        "wires": [
+            [
+                "402c3781ab0ce487",
+                "179d7c6a08520c8f"
+            ]
+        ]
+    },
+    {
+        "id": "bd226ce22b149562",
+        "type": "change",
+        "z": "7db1206f831c6b71",
+        "name": "",
+        "rules": [
+            {
+                "t": "move",
+                "p": "topic",
+                "pt": "msg",
+                "to": "payload",
+                "tot": "msg"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 720,
+        "y": 460,
+        "wires": [
+            [
+                "ad82963829dd6bc2",
+                "a1a77bb8dc6dbeb9"
+            ]
+        ]
+    },
+    {
+        "id": "ad82963829dd6bc2",
+        "type": "debug",
+        "z": "7db1206f831c6b71",
+        "name": "",
+        "active": false,
+        "tosidebar": true,
+        "console": true,
+        "tostatus": true,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "payload",
+        "statusType": "auto",
+        "x": 980,
+        "y": 380,
+        "wires": []
+    },
+    {
+        "id": "179d7c6a08520c8f",
+        "type": "ui_chart",
+        "z": "7db1206f831c6b71",
+        "name": "",
+        "group": "ad742127fa3ad813",
+        "order": 4,
+        "width": 21,
+        "height": 8,
+        "label": "Forward Prediction",
+        "chartType": "line",
+        "legend": "true",
+        "xformat": "auto",
+        "interpolate": "monotone",
+        "nodata": "",
+        "dot": true,
+        "ymin": "",
+        "ymax": "",
+        "removeOlder": 1,
+        "removeOlderPoints": "",
+        "removeOlderUnit": "3600",
+        "cutout": 0,
+        "useOneColor": false,
+        "useUTC": false,
+        "colors": [
+            "#1f77b4",
+            "#aec7e8",
+            "#f8ff9d",
+            "#2ca02c",
+            "#98df8a",
+            "#d62728",
+            "#ff9896",
+            "#9467bd",
+            "#c5b0d5"
+        ],
+        "outputs": 1,
+        "useDifferentColor": false,
+        "className": "",
+        "x": 1650,
+        "y": 500,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "a1a77bb8dc6dbeb9",
+        "type": "MSSQL",
+        "z": "7db1206f831c6b71",
+        "mssqlCN": "dd12380c8615ca09",
+        "name": "",
+        "query": "",
+        "outField": "payload",
+        "x": 1140,
+        "y": 460,
+        "wires": [
+            [
+                "9eb28b5d9e101c5e",
+                "89150ea91948ffd3"
+            ]
+        ]
+    },
+    {
+        "id": "89150ea91948ffd3",
+        "type": "debug",
+        "z": "7db1206f831c6b71",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": true,
+        "tostatus": true,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "payload",
+        "statusType": "auto",
+        "x": 1380,
+        "y": 380,
+        "wires": []
+    },
+    {
+        "id": "18a44f72ac3291ef",
+        "type": "inject",
+        "z": "7db1206f831c6b71",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 320,
+        "y": 640,
+        "wires": [
+            [
+                "3019ca1d4bdd18b3"
+            ]
+        ]
+    },
+    {
+        "id": "c5df1f6e634ba545",
+        "type": "debug",
+        "z": "7db1206f831c6b71",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 740,
+        "y": 640,
+        "wires": []
+    },
+    {
+        "id": "3019ca1d4bdd18b3",
+        "type": "pythonshell in",
+        "z": "7db1206f831c6b71",
+        "name": "tet",
+        "pyfile": "D:\\4th Year 1st Semester\\IOT Assignment\\model prediction\\Model\\mid.py",
+        "virtualenv": "",
+        "continuous": true,
+        "stdInData": true,
+        "x": 530,
+        "y": 640,
+        "wires": [
+            [
+                "c5df1f6e634ba545"
+            ]
+        ]
+    },
+    {
+        "id": "336c44b4d678a529",
+        "type": "delay",
+        "z": "7db1206f831c6b71",
+        "name": "",
+        "pauseType": "random",
+        "timeout": "40",
+        "timeoutUnits": "milliseconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "10",
+        "randomLast": "40",
+        "randomUnits": "milliseconds",
+        "drop": false,
+        "allowrate": false,
+        "outputs": 1,
+        "x": 340,
+        "y": 460,
+        "wires": [
+            [
+                "c884f8512b356001"
+            ]
+        ]
+    },
+    {
+        "id": "791317ea54c7c044",
+        "type": "ui_gauge",
+        "z": "7db1206f831c6b71",
+        "name": "",
+        "group": "f3c2f5dd51f9b56d",
+        "order": 1,
+        "width": 9,
+        "height": 18,
+        "gtype": "gage",
+        "title": "gauge",
+        "label": "units",
+        "format": "{{value}}",
+        "min": 0,
+        "max": "60",
+        "colors": [
+            "#00b500",
+            "#e6e600",
+            "#ca3838"
+        ],
+        "seg1": "20",
+        "seg2": "40",
+        "className": "",
+        "x": 730,
+        "y": 800,
+        "wires": []
+    },
+    {
+        "id": "5d91599957f3674b",
+        "type": "mqtt in",
+        "z": "7db1206f831c6b71",
+        "name": "",
+        "topic": "DS18B20_temperature/temperature",
+        "qos": "2",
+        "datatype": "auto",
+        "broker": "f0b771a52cc31dab",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 380,
+        "y": 800,
+        "wires": [
+            [
+                "791317ea54c7c044"
+            ]
+        ]
+    },
+    {
+        "id": "8fb05ebe110a1acb",
+        "type": "ui_spacer",
+        "z": "7db1206f831c6b71",
+        "name": "spacer",
+        "group": "1bc854bcf0cf5809",
+        "order": 1,
+        "width": 1,
+        "height": 1
+    },
+    {
+        "id": "cfcd2b763600c429",
+        "type": "ui_spacer",
+        "z": "7db1206f831c6b71",
+        "name": "spacer",
+        "group": "ad742127fa3ad813",
+        "order": 2,
+        "width": 21,
+        "height": 1
+    },
+    {
+        "id": "ad742127fa3ad813",
+        "type": "ui_group",
+        "name": "Default",
+        "tab": "a3c20d4e8ff9fddb",
+        "order": 2,
+        "disp": true,
+        "width": "21",
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "dd12380c8615ca09",
+        "type": "MSSQL-CN",
+        "name": "",
+        "server": "LAPTOP-5Q86R9NK",
+        "encyption": false,
+        "database": "Temperature_db"
+    },
+    {
+        "id": "f3c2f5dd51f9b56d",
+        "type": "ui_group",
+        "name": "Current Temperature",
+        "tab": "a3c20d4e8ff9fddb",
+        "order": 1,
+        "disp": true,
+        "width": "9",
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "f0b771a52cc31dab",
+        "type": "mqtt-broker",
+        "name": "",
+        "broker": "broker.hivemq.com",
+        "port": "1883",
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": "4",
+        "keepalive": "60",
+        "cleansession": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willPayload": "",
+        "willMsg": {},
+        "sessionExpiry": ""
+    },
+    {
+        "id": "a3c20d4e8ff9fddb",
+        "type": "ui_tab",
+        "name": "Temperature Dashboard",
+        "icon": "dashboard",
+        "disabled": false,
+        "hidden": false
+    }
+]
