@@ -26,7 +26,7 @@ cursor = db.cursor()
 
 sql = '''use temp_db'''
 cursor.execute(sql)
-
+prometheus_client.start_http_server(8000)
 @application.route("/")
 async def extract_temp():
     counter = 0
@@ -51,5 +51,4 @@ async def extract_temp():
         push_to_gateway('localhost:8000', job='python', registry=registry)
 
 if __name__ == '__main__':
-    prometheus_client.start_http_server(8000)
     application.run(debug=True, port=5000)
